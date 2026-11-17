@@ -1,4 +1,4 @@
-/ The shape of one recipe. Everything in the app is built from this type.
+// The shape of one recipe. Everything in the app is built from this type.
 export type Recipe = {
   id: string;
   title: string;
