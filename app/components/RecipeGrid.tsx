@@ -1,41 +1,48 @@
 "use client";
 
 import { useState } from "react";
-import RecipeCard from "./RecipeCard";
 import type { Recipe } from "../data/recipes";
+import RecipeCard from "./RecipeCard";
 
-// Client component: a search box that filters the recipe grid live.
-export default function RecipeGrid({ recipes }: { recipes: Recipe[] }) {
+interface RecipeGridProps {
+  recipes: Recipe[];
+}
+
+export default function RecipeGrid({ recipes }: RecipeGridProps) {
   const [query, setQuery] = useState("");
 
-  const visible = recipes.filter((recipe) =>
-    (recipe.title + " " + recipe.cuisine)
-      .toLowerCase()
-      .includes(query.toLowerCase())
+  const normalizedQuery = query.trim().toLowerCase();
+
+  const filteredRecipes = recipes.filter(
+    (recipe) =>
+      recipe.title.toLowerCase().includes(normalizedQuery) ||
+      recipe.cuisine.toLowerCase().includes(normalizedQuery)
   );
 
   return (
-    <>
-      <div className="search">
+    <section>
+      <div className="mb-6">
         <input
+          type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search recipes or cuisines…"
+          placeholder="Search recipes by title or cuisine..."
           aria-label="Search recipes"
+          className="w-full rounded-lg border border-gray-300 px-4 py-2"
         />
       </div>
 
-      {visible.length === 0 ? (
-        <p className="empty">
-          No recipes match “{query}”. Try another search.
+      {filteredRecipes.length === 0 ? (
+        <p className="text-gray-600">
+          No recipes match &ldquo;{query}&rdquo;. Try another title or cuisine.
         </p>
       ) : (
-        <div className="grid">
-          {visible.map((recipe) => (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {filteredRecipes.map((recipe) => (
             <RecipeCard key={recipe.id} recipe={recipe} />
           ))}
         </div>
       )}
-    </>
+    </section>
   );
 }

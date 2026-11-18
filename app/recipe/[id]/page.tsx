@@ -1,55 +1,60 @@
+
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { recipes, getRecipe } from "../../data/recipes";
 
-// Pre-build one page per recipe id (needed for static export).
+// Generate a page for every recipe ID
 export function generateStaticParams() {
-  return recipes.map((recipe) => ({ id: recipe.id }));
+  return recipes.map((recipe) => ({
+    id: recipe.id,
+  }));
 }
 
-export default function RecipePage({ params }: { params: { id: string } }) {
-  const recipe = getRecipe(params.id);
-  if (!recipe) notFound();
+// Recipe detail page
+export default async function RecipePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  const recipe = getRecipe(id);
+
+  if (!recipe) {
+    notFound();
+  }
 
   return (
-    <main className="detail">
-      <Link href="/" className="back">
-        ← All recipes
-      </Link>
+    <main className="recipe-detail">
+      <Link href="/">← Back to Home</Link>
 
-      <div className="detail-head">
-        <div className="detail-art">
-          <span>{recipe.emoji}</span>
-        </div>
-        <div>
-          <h1>{recipe.title}</h1>
-          <p className="detail-blurb">{recipe.blurb}</p>
-          <div className="card-meta">
-            <span className="chip">⏱ {recipe.minutes} min</span>
-            <span className="chip">{recipe.difficulty}</span>
-            <span className="chip chip-cuisine">{recipe.cuisine}</span>
-          </div>
-        </div>
-      </div>
+      <h1>
+        {recipe.emoji} {recipe.title}
+      </h1>
 
-      <div className="detail-cols">
-        <section>
-          <h2>Ingredients</h2>
-          <ul className="ing">
-            {recipe.ingredients.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </section>
-        <section>
-          <h2>Method</h2>
-          <ol className="steps">
-            {recipe.steps.map((step) => (
-              <li key={step}>{step}</li>
-            ))}
-          </ol>
-        </section>
-      </div>
+      <p>{recipe.blurb}</p>
+
+      <p>
+        Cuisine: {recipe.cuisine} |
+        Cooking Time: {recipe.minutes} minutes |
+        Difficulty: {recipe.difficulty}
+      </p>
+
+      <h2>Ingredients</h2>
+
+      <ul>
+        {recipe.ingredients.map((ingredient, index) => (
+          <li key={index}>{ingredient}</li>
+        ))}
+      </ul>
+
+      <h2>Cooking Steps</h2>
+
+      <ol>
+        {recipe.steps.map((step, index) => (
+          <li key={index}>{step}</li>
+        ))}
+      </ol>
     </main>
   );
 }
